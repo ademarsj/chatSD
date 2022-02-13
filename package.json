@@ -2,9 +2,9 @@
   "name": "chatsd",
   "version": "1.0.0",
   "description": "",
-  "main": "teste.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node teste.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +17,5 @@
   "bugs": {
     "url": "https://github.com/ademarsj/chatSD/issues"
   },
-  "homepage": "https://github.com/ademarsj/chatSD#readme",
-  "dependencies": {
-    "blessed": "^0.1.81"
-  }
+  "homepage": "https://github.com/ademarsj/chatSD#readme"
 }
