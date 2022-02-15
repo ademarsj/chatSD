@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Multi Chat</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <form id="chat">
+    <input type="text" name="username" placeholder="Digite seu nome.">
+    <div class="messages"></div>
+    <input type="text" name="message" placeholder="Digite sua mensagem.">
+    <button type="submit">Enviar</button>
+  </form>
+  <script type="text/javascript">
+    var div = $('.messages');
+    // Realizar a conexão com o socket do backend. 
+    // Já estará escutando a conexão.
+    var socket = io('http://localhost:3000');
+
+    // Função para mostrar as mensagens para os usuários conectados.
+    function renderMessage(message) {
+      $('.messages').append('<div class="message"><strong>' + message.author + '</strong>: ' + message.message + '</div>')
+      /* $('.messages').stop().animate({
+        scrollTop: $('.messages')[0].scrollHeight
+      }, 1500); */
+      div.prop("scrollTop", div.prop("scrollHeight"));
+    }
+
+    socket.on('previousMessages', function (messages) {
+      for (message of messages) {
+        renderMessage(message);
+      }
+    });
+
+    // Ouvir as mensagens do backend para enviar-las a função de renderização para que todos os clientes possam ver as mensagens.
+    socket.on('receivedMessage', function (message) {
+      renderMessage(message);
+    });
+
+    // Verificação de quando o usuário clicar no botão de enviar mensagem.
+    $('#chat').submit(function (event) {
+      event.preventDefault();
+      var author = $('input[name=username]').val();
+      var message = $('input[name=message]').val();
+
+      if (author.length && message.length) {
+        var messageObject = {
+          author: author,
+          message: message
+        };
+        // Chamada da função para renderizar na tela do cliente.
+        renderMessage(messageObject);
+        // Envia um objeto pelo web socket.
+        socket.emit('sendMessage', messageObject);
+      }
+    });
+  </script>
+</body>
+
+</html>
