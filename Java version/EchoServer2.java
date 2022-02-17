@@ -1,7 +1,7 @@
 import java.net.*; 
 import java.io.*;
 
-public class EchoServer2 extends Thread
+public class EchoServer2
 { 
  protected Socket clientSocket;
 
@@ -16,7 +16,7 @@ public class EchoServer2 extends Thread
               while (true)
                  {
                   System.out.println ("Waiting for Connection");
-                  new EchoServer2 (serverSocket.accept()); 
+						iniciar(serverSocket.accept()); 
                  }
              } 
          catch (IOException e) 
@@ -43,13 +43,8 @@ public class EchoServer2 extends Thread
         }
    }
 
- private EchoServer2 (Socket clientSoc)
-   {
-    clientSocket = clientSoc;
-    start();
-   }
 
- public void run()
+ public static void iniciar(Socket clientSocket)
    {
     System.out.println ("New Communication Thread Started");
 
@@ -59,15 +54,26 @@ public class EchoServer2 extends Thread
                                      true); 
         BufferedReader in = new BufferedReader( 
                 new InputStreamReader( clientSocket.getInputStream())); 
-        EscreveSocket teste1 = new EscreveSocket(in,out,clientSocket); 
-        EscutaSocket teste2 =  new  EscutaSocket(in,out,clientSocket);  
-
+                //
+                
+       EscreveSocket T1 = new EscreveSocket(out,clientSocket); 
+       EscutaSocket T2 = new EscutaSocket(in,clientSocket);
+	    T1.join();
+	    T2.join();
     } 
     catch (IOException e) 
         { 
             System.err.println("Problem with Communication Server");
             System.exit(1); 
         } 
+        
+    catch (InterruptedException e) 
+        { 
+            System.err.println("Problem with Interruption Communication Server");
+            System.exit(1); 
+        } 
+        
+
     }
 } 
 

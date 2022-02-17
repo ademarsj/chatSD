@@ -26,18 +26,20 @@ public class EchoClient2 {
                                + "the connection to: " + serverHostname);
             System.exit(1);
         }
-        // try {
-            EscreveSocket teste1 = new EscreveSocket(in,out,echoSocket); 
-            EscutaSocket teste2 = new EscutaSocket(in,out,echoSocket); 
-        // }  
-        // catch (IOException e)
-        //     { 
-        //     System.err.println("Could not close port: 10008."); 
-        //     System.exit(1); 
-        //     } 
-    
-  
         
+        try {
+       EscreveSocket T1 = new EscreveSocket(out,echoSocket); 
+       EscutaSocket T2 = new EscutaSocket(in,echoSocket);
+	    T1.join();
+       T2.join();
+       echoSocket.close();     
+        }
+       
+           catch (InterruptedException e) 
+        { 
+            System.err.println("Problem with Interruption Communication Server");
+            System.exit(1); 
+        } 
     }
 }
 

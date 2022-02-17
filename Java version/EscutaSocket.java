@@ -1,14 +1,14 @@
 import java.net.*; 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class EscutaSocket extends Thread implements Runnable {
-  public BufferedReader entrada; 
-  public PrintWriter saida; 
+  public BufferedReader entrada; ; 
   public Socket socket; 
 
-  EscutaSocket(BufferedReader in, PrintWriter out, Socket meuSocket) {
+  EscutaSocket(BufferedReader in, Socket meuSocket) {
       entrada = in;
-      saida = out;
       socket = meuSocket;
       start();
   }
@@ -17,18 +17,20 @@ public class EscutaSocket extends Thread implements Runnable {
 
     try { 
       String inputLine; 
-      while ((inputLine = entrada.readLine()) != null) 
+      while ((inputLine = entrada.readLine()) != null && !socket.isClosed()) 
       { 
-          System.out.println ("Me mandou: " + inputLine); 
+  DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+       
+
+          System.out.println (dtf.format(LocalDateTime.now())+ ": " + inputLine); 
 
           if (inputLine.equals("Bye.")) {
-            saida.close(); 
             entrada.close(); 
             socket.close(); 
-            System.out.print("Opa");
             break; 
           }
-      }   
+      }
+      System.exit(1);   
      } 
  catch (IOException e) 
      { 
