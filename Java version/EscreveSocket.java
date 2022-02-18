@@ -14,17 +14,16 @@ public class EscreveSocket extends Thread implements Runnable {
   public void run() {
 
     try { 
-    
       BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
       String userInput;
  
       while ((userInput = stdIn.readLine()) != null && !socket.isClosed()) {
         saida.println(userInput);
-              if (userInput.equals("Bye.")) {
-                saida.close(); 
-                socket.close(); 
-                break;              
-              }
+        if (userInput.equals("Bye.")) {
+          saida.close(); 
+          socket.close(); 
+          break;              
+        }
       }
       stdIn.close();
       System.exit(1);
