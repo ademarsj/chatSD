@@ -51,8 +51,14 @@ app.post('/tarefas', async (req, res) => {
   }
 })
 
-app.get('/tarefas', (req, res) => {
-  res.send('Implementar')
+app.get('/tarefas', async (req, res) => {
+  try {
+    const tarefas = await Tarefa.find()
+    return res.status(200).json(tarefas)
+  }
+  catch (e) {
+    return res.status(400).send({ erro: 'Falha ao retornar lista de tarefas.' })
+  }
 })
 
 
