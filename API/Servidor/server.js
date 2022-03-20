@@ -61,5 +61,10 @@ app.get('/tarefas', async (req, res) => {
   }
 })
 
+app.use(() => {
+  console.log('recebi');
+})
 
-app.listen(3000)
+app.listen(3000, () => {
+  console.log('running on 3000')
+})
