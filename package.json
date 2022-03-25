@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/ademarsj/chatSD/issues"
   },
-  "homepage": "https://github.com/ademarsj/chatSD#readme"
+  "homepage": "https://github.com/ademarsj/chatSD#readme",
+  "dependencies": {
+    "axios": "^0.26.1"
+  }
 }

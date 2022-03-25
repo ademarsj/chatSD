@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html>
+  <head lang="ptBR">
+    <meta charset="utf-8" />
+    <link href="/css/styles.css" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>API para Sistemas Distribuidos</title>
+  </head>
+  
+  <body>
+    
+    <div class="container"> 
+      <h1>Lista de Tarefas</h1>
+      <form class="taskForm">
+        <label for="description">Descrição</label>
+        <input id="description" class="input" placeholder="Digite a descrição da tarefa">
+        <label for="date">Prazo</label>
+        <input class="input" id="date" type="date">
+        
+        <button class="addButton">Adicionar Tarefa</button>
+      </form>
+      
+      
+      <h2>Tarefas Pendentes</h2>
+      <ul id="pendingList"></ul>
+      
+
+      <h2>Tarefas Concluidas</h2>
+      <ul id="doneList"></ul>
+      
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/client.js"></script>
+  </body>
+
+</html>

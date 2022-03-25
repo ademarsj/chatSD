@@ -1,0 +1,98 @@
+body {
+  background-color: #378bfc;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+h2 {
+  background-color: blueviolet;
+  width: 75%;
+  height: 35px;
+  text-align: center;
+  line-height: 35px;
+}
+button {
+  cursor: pointer;
+}
+
+.container {
+  margin: auto;
+  width: 600px;
+  height: 50%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 30px;
+}
+
+.taskForm {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  margin: auto;
+}
+
+.input {
+  height: 30px;
+  padding-left: 10px;
+}
+
+label {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.addButton {
+  height: 50px;
+  width: 100%;
+  margin: 10px 0;
+  background-color: #3781fc;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+}
+
+.addButton:hover {
+  background-color: #3d41ad;
+}
+
+ul {
+  width: 75%;
+  padding: 10px;
+}
+
+li {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 35px;
+  background-color: #3781fc;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  border-radius: 6px;
+}
+
+.done {
+  text-decoration: line-through;
+}
+
+.btnDel {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+
+  background-color: black;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0;
+  color: white;
+  width: 50px;
+  height: 40px;
+}
