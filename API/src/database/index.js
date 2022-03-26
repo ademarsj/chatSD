@@ -1,9 +1,12 @@
 const mongoose = require('mongoose')
-  mongoose.connect('mongodb://root:wADgFe8F7DRa8TkKgBmgtdW6wE7wQTMGHMRu2@localhost:27117/api?authSource=admin').catch(e => {
-    console.log('Error at connecting to database');
-
-  })
-//?retryWrites=true&authSource=admin
+mongoose.connect('mongodb+srv://usuario:senha@api-sistemas-distribuid.0mtvy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true})
 mongoose.Promise = global.Promise
 
-module.exports = mongoose
+try {
+  let db = mongoose.connection
+  db.on('errr', console.error.bind(console, 'erro de conexao no banco'))
+} catch (e) {
+  console.log(e)
+}
+
+module.exports = mongoose 
