@@ -123,8 +123,7 @@ function appendAddEvent(component) {
 function appendDeleteEvent(component) {
   component.addEventListener('click', async (e) => {
     e.preventDefault();
-    
-    await deleteTask(e.target.parentElement.id);
+    await deleteTask(e.target.parentElement.parentElement.task.id);
     await loadTasks();
   });
 }
