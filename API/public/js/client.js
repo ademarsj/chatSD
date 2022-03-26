@@ -4,90 +4,175 @@ const api = axios.create({
   timeout: 3000,
 });
 
-
 const addButton = document.querySelector('.addButton');
+const dateInput = document.querySelector('#date');
+const descriptionInput = document.querySelector('#description');
 
-addButton.addEventListener('click', (event) => {
-  event.preventDefault();
-  //Logica para criar uma tarefa
-})
+appendAddEvent(addButton);
 
+loadTasks();
 
-function loadTasks() {
-
-api.get('/tarefas').then(response => {
-  tasks = response.data;
+async function loadTasks() {
   const pendingList = document.querySelector('#pendingList');
-  
-  for(task of tasks) {
-    let element = createTaskHtml(task.descricao,task.completa);
-    pendingList.appendChild(element);
-  }
-}).catch(error => console.log(error)) 
+  const doneList = document.querySelector('#doneList');
+  const tasks = await readTask();
 
+  while (pendingList.firstChild) {
+    pendingList.removeChild(pendingList.firstChild);
+  }
+
+  while (doneList.firstChild) {
+    doneList.removeChild(doneList.firstChild);
+  }
+
+  for(let item of tasks) {
+    let element = getTaskHtml(item);
+    if (item.completa) {
+      doneList.appendChild(element);
+    } else {
+      pendingList.appendChild(element);
+    }
+  }
 }
 
+////////////////////////// HTML COMPONENTS /////////////////////////////
 
-function createTaskHtml(text, checked) {
+
+function getTaskHtml(task) {
+  let div = document.createElement('div');
+  div.task = task;
   let element = document.createElement('li');
   let span = document.createElement('span');
+  span.innerHTML = task.descricao;
   let checkbox = document.createElement('input');
   checkbox.type = "checkbox";
-  let div = document.createElement('div');
   let deleteButton = createDeleteButton();
-  
-  if (checked) {
-    checkbox.value = true;
+  let editButton = createEditButton();
+
+  appendCheckBoxEvent(checkbox);
+
+  if (task.completa) {
+    checkbox.checked = true;
     span.classList.add('done');
   }
-  span.innerHTML = text;
+
   element.appendChild(span);
   div.appendChild(checkbox);
+  div.appendChild(editButton);
   div.appendChild(deleteButton);
   element.appendChild(div);
 
   return element;
 }
 
-
 function createDeleteButton() {
   let button = document.createElement('button');
   let icon = document.createElement('i');
+
   icon.classList.add('fa','fa-trash');
   button.classList.add("btnDel");
-
   button.appendChild(icon);
+  appendDeleteEvent(button);
   
   return button;
 }
 
-loadTasks();
+function createEditButton() {
+  let button = document.createElement('button');
+  let icon = document.createElement('i');
 
-// api.get(`/tarefas/1`).then(response =>{
-//   console.log('Metodo api.get(`/tarefas/1`)')
-//   console.log(response.data)
-// }).catch(error => console.log(error.response.data))
+  icon.classList.add('fa','fa-edit');
+  button.classList.add("btnEdit");
+  button.appendChild(icon);
+  // appendEditEvent(button);
+  
+  return button;
+}
 
-// api.delete(`/tarefas/2`).then(response =>{
-//   console.log('Metodo api.delete(`/tarefas/2`)')
-//   console.log(response.data)
-// }).catch(error => console.log(error.response.data))
+////////////////////////// Events //////////////////////////////////
 
-// api.put(`/tarefas/3`,{
-//   descricao: 'Teste Axios.Put',
-//   prazo: '25/03/2022',
-//   completa: false,
-// }).then(response =>{
-//   console.log('Metodo api.put(`/tarefas/5`)')
-//   console.log(response.data)
-// }).catch(error => console.log(error.response.data))
+function appendAddEvent(component) {
+  component.addEventListener('click', async (event) => {
+    event.preventDefault();
+    
+    if (!descriptionInput.value) {
+      alert('Preencha uma descrição.')
+      return;
+    }
+  
+    if(!dateInput.value) {
+      alert('Preencha uma data de prazo.')
+      return;
+    }
+  
+    await createTask(descriptionInput.value,dateInput.value,false)
+    await loadTasks();
+  })
+}
 
-// api.post('/tarefas', {
-//   id: 5,
-//   descricao: 'Teste Axios.Post',
-//   prazo: '23/03/2022',
-//   completa: false,
-// }).then(response =>{
-//   console.log('Metodo api.post(`/tarefas`)')
-//   console.log(response.data)
-// }).catch(error => console.log(error.response.data))
+function appendDeleteEvent(component) {
+  component.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    await deleteTask(e.target.parentElement.id);
+    await loadTasks();
+  });
+}
+
+function appendCheckBoxEvent(component) {
+  component.addEventListener('click', async (e) => {
+    let task = e.target.parentElement.task;
+    await updateTask(task.id,task.descricao,task.prazo,e.target.checked)
+    await loadTasks();
+  });  
+}
+
+
+/////////////////////// Request functions //////////////////////////
+
+
+async function createTask(descricao,prazo,completa) {
+  try {
+    const newTask = await api.post('/tarefas', {
+      descricao,
+      prazo,
+      completa,
+    });
+  } catch (err) {
+    console.log('Error creating task', error.response.data);
+  }
+}
+
+async function readTask(id) {
+  let url = '/tarefas';
+  if(id) {
+    url += `/${id}`;
+  }
+
+  try {
+    const tasks = await api.get(url);
+    return tasks.data;
+  } catch (err) {
+    console.log('Error reading tasks', error.response.data);
+  }
+}
+
+async function updateTask(id,descricao,prazo,completa) {
+  try {
+    const newTask = await api.put(`/tarefas/${id}`,{
+      descricao,
+      prazo,
+      completa,
+    });
+  } catch (err) {
+    console.log('Error updating task', error.response.data);
+  }
+}
+
+async function deleteTask(id) {
+  try {
+    await api.delete(`/tarefas/${id}`);
+  } catch (err) {
+    console.log('Error updating task', error.response.data);
+  }
+}

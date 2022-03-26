@@ -7,7 +7,6 @@ const Tarefa = require('./model/tarefas')
 
 router.get('/tarefas', async (req, res) => {
   try {
-    console.log('pega no pai')
     const tarefas = await Tarefa.find()
     return res.status(200).json(tarefas)
   }
@@ -29,21 +28,24 @@ router.get('/tarefas/:id', async (req, res) => {
 
 router.post('/tarefas', async (req, res) => {
   try {
-    let { id, descricao, prazo, completa } = req.body
-    if (id != null && descricao != null && prazo != null && completa != null) {
-      // Converte a data informada pelo usuario para formato aceito no Date() -  Inverte mes com dia para ser aceita
-      const prazoSplit = prazo.split('/')
-      prazo = prazoSplit[1] + '/' + prazoSplit[0] + '/' + prazoSplit[2]
+    let {descricao, prazo, completa } = req.body
+    if (descricao != null && prazo != null) {
       prazo = new Date(prazo).toISOString();
+    
+      await Tarefa.findOne().sort('-id')
+      .exec(async function(err, item) {
+        let id = Number(item?.id || 0) + 1;
+        const data = {
+          id,
+          descricao,
+          prazo,
+          completa
+        }
+        const tarefa = await Tarefa.create(data);
+        res.send(tarefa)
+      });
 
-      const data = {
-        id,
-        descricao,
-        prazo,
-        completa
-      }
-      const tarefa = await Tarefa.create(data)
-      return res.send(tarefa)
+      return;
     }
     else {
       return res.status(400).send('Falha ao registrar tarefa. Falta coisa!')
@@ -56,10 +58,8 @@ router.post('/tarefas', async (req, res) => {
 router.put('/tarefas/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    let { descricao, prazo, completa } = req.body
+    let { descricao, prazo, completa } = req.body;
     if (descricao != null && prazo != null && completa != null) {
-      const prazoSplit = prazo.split('/')
-      prazo = prazoSplit[1] + '/' + prazoSplit[0] + '/' + prazoSplit[2]
       prazo = new Date(prazo).toISOString();
 
       const data = {
@@ -68,15 +68,20 @@ router.put('/tarefas/:id', async (req, res) => {
         completa
       }
 
-      await Tarefa.findOneAndUpdate({ id: id }, data, { upsert: true, new: true }).then(res.status(201).send('Created'))
+      await Tarefa.findOneAndUpdate({ id: id }, data)
+        .then(res.sendStatus(200))
+        .catch(e => {
+          console.log(e);
+        });
     }
   } catch (e) {
+    console.log(e);
     return res.status(400).send('Falha ao atualizar tarefa.')
   }
 })
 
 router.delete('/tarefas/:id', async (req, res) => {
-  const tarefa = await Tarefa.findOneAndRemove({ id: req.params.id })
+  const tarefa = await Tarefa.findOneAndRemove({ id: req.params.id  })
   if (tarefa) {
     return res.status(204).send('Tarefa excluida')
   }
