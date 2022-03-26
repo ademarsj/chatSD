@@ -52,7 +52,8 @@ label {
   margin-top: 5px;
 }
 
-.addButton {
+.addButton,
+.btnSearch {
   height: 50px;
   width: 100%;
   margin: 10px 0;
@@ -97,4 +98,10 @@ li {
   margin: 0 5px;
   width: 50px;
   height: 30px;
+}
+
+.searchContainer {
+  border: 2px solid black;
+  width: 75%;
+  padding: 20px;
 }

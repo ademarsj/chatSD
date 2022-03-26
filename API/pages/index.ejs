@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html>
-  <head lang="ptBR">
+  <head lang="en-US">
     <meta charset="utf-8" />
     <link href="/css/styles.css" rel="stylesheet" type="text/css">
     <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
@@ -20,7 +20,7 @@
         <input class="input" id="date" type="date">
         <div class="input">
           <label for="pending">Pendente</label>
-          <input id="pending" name="status" class="inputRadio" type="radio" value="pending">
+          <input id="pending" name="status" class="inputRadio" type="radio" value="pending" checked>
           <label for="done">Completa</label>
           <input id="done" name="status" class="inputRadio" type="radio" value="done">
         </div>
@@ -28,13 +28,21 @@
         <button class="addButton">Adicionar Tarefa</button>
       </form>
       
-      
-      <h2>Tarefas Pendentes</h2>
-      <ul id="pendingList"></ul>
-      
+      <div class="searchContainer">
+        <label for="idSearch">ID</label>
+        <input id="idSearch" class="input" placeholder="Digite o ID">
+        <div>
+          <span id="readDescription"></span>
+          <span id="readDate"></span>
+          <span id="readChecked"></span>
+        </div>
 
-      <h2>Tarefas Concluidas</h2>
-      <ul id="doneList"></ul>
+
+        <button class="btnSearch">Buscar Tarefa</button>
+      </div>
+      
+      <h2>Tarefas</h2>
+      <ul id="taskList"></ul>
       
     </div>
 

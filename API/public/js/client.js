@@ -5,33 +5,26 @@ const api = axios.create({
 });
 
 const addButton = document.querySelector('.addButton');
+const btnSearch = document.querySelector('.btnSearch');
 const dateInput = document.querySelector('#date');
 const descriptionInput = document.querySelector('#description');
+const radioButtons = document.querySelectorAll('input[name="status"]');
 
 appendAddEvent(addButton);
-
+appendReadEvent(btnSearch);
 loadTasks();
 
 async function loadTasks() {
-  const pendingList = document.querySelector('#pendingList');
-  const doneList = document.querySelector('#doneList');
+  const taskList = document.querySelector('#taskList');
   const tasks = await readTask();
 
-  while (pendingList.firstChild) {
-    pendingList.removeChild(pendingList.firstChild);
-  }
-
-  while (doneList.firstChild) {
-    doneList.removeChild(doneList.firstChild);
+  while (taskList.firstChild) {
+    taskList.removeChild(taskList.firstChild);
   }
 
   for(let item of tasks) {
     let element = getTaskHtml(item);
-    if (item.completa) {
-      doneList.appendChild(element);
-    } else {
-      pendingList.appendChild(element);
-    }
+    taskList.appendChild(element);
   }
 }
 
@@ -42,8 +35,12 @@ function getTaskHtml(task) {
   let div = document.createElement('div');
   div.task = task;
   let element = document.createElement('li');
+  let spanID = document.createElement('span');
+  spanID.innerHTML = `(${task.id})`;
   let span = document.createElement('span');
   span.innerHTML = task.descricao;
+  let spanDate = document.createElement('span');
+  spanDate.innerHTML =  new Date(task.prazo).toLocaleDateString('pt-BR');
   let checkbox = document.createElement('input');
   checkbox.type = "checkbox";
   let deleteButton = createDeleteButton();
@@ -56,7 +53,9 @@ function getTaskHtml(task) {
     span.classList.add('done');
   }
 
+  element.appendChild(spanID);
   element.appendChild(span);
+  element.appendChild(spanDate);
   div.appendChild(checkbox);
   div.appendChild(editButton);
   div.appendChild(deleteButton);
@@ -84,7 +83,7 @@ function createEditButton() {
   icon.classList.add('fa','fa-edit');
   button.classList.add("btnEdit");
   button.appendChild(icon);
-  // appendEditEvent(button);
+  appendEditEvent(button);
   
   return button;
 }
@@ -104,8 +103,18 @@ function appendAddEvent(component) {
       alert('Preencha uma data de prazo.')
       return;
     }
-  
-    await createTask(descriptionInput.value,dateInput.value,false)
+
+    let isDone = radioButtons[1].checked; 
+
+    if(addButton.classList.contains('edit')) {
+      addButton.classList.remove('edit');
+      addButton.innerHTML = 'Adicionar Tarefa';
+      await updateTask(descriptionInput.value,dateInput.value,isDone);
+    } else {
+      await createTask(descriptionInput.value,dateInput.value,isDone);
+
+    }
+    
     await loadTasks();
   })
 }
@@ -122,11 +131,68 @@ function appendDeleteEvent(component) {
 function appendCheckBoxEvent(component) {
   component.addEventListener('click', async (e) => {
     let task = e.target.parentElement.task;
-    await updateTask(task.id,task.descricao,task.prazo,e.target.checked)
+    await updateTask(task.id,task.descricao,task.prazo,e.target.checked);
     await loadTasks();
   });  
 }
 
+function appendEditEvent(component) {
+  component.addEventListener('click', async (e) => {
+    let task = e.target.parentElement.parentElement.task;
+    dateInput.value = formatDate(new Date(task.prazo));
+    descriptionInput.value = task.descricao;
+    radioButtons[task.completa ? 1 : 0].checked = true;
+
+    addButton.innerHTML = 'Salvar Alterações (' + task.id +')';
+    addButton.classList.add('edit');
+
+    await loadTasks();
+  });  
+}
+
+function appendReadEvent(component) {
+  component.addEventListener('click', async (e) => {
+    
+    const inputSearch = document.querySelector('#idSearch');
+    const readSpan = document.querySelector('#readDescription');
+    const readDate = document.querySelector('#readDate');
+    const readChecked = document.querySelector('#readChecked');
+    
+    readSpan.innerHTML = '';
+    readDate.innerHTML = '';
+    readChecked.innerHTML = '';
+
+    if (!inputSearch.value) {
+      alert('Digite um ID válido.')
+      return;
+    }
+
+    const task = await readTask(inputSearch.value);
+    if (!task) {
+      readSpan.innerHTML = 'Tarefa não encontrada';
+    } else {
+      readSpan.innerHTML = task.descricao;
+      readDate.innerHTML = new Date(task.prazo).toDateString();
+      readChecked.innerHTML = task.completa ? 'Completa' : 'Pendente';
+    }
+    
+
+  });  
+}
+
+
+////////////////////////// UTILS /////////////////////////////////
+function padTo2Digits(num) {
+  return num.toString().padStart(2, '0');
+}
+
+function formatDate(date) {
+  return [
+    date.getFullYear(),
+    padTo2Digits(date.getMonth() + 1),
+    padTo2Digits(date.getDate()),
+  ].join('-');
+}
 
 /////////////////////// Request functions //////////////////////////
 
@@ -153,7 +219,8 @@ async function readTask(id) {
     const tasks = await api.get(url);
     return tasks.data;
   } catch (err) {
-    console.log('Error reading tasks', error.response.data);
+    console.log('Error reading tasks', err.response.data);
+    return null;
   }
 }
 
@@ -165,7 +232,7 @@ async function updateTask(id,descricao,prazo,completa) {
       completa,
     });
   } catch (err) {
-    console.log('Error updating task', error.response.data);
+    console.log('Error updating task', err.response.data);
   }
 }
 
@@ -173,6 +240,6 @@ async function deleteTask(id) {
   try {
     await api.delete(`/tarefas/${id}`);
   } catch (err) {
-    console.log('Error updating task', error.response.data);
+    console.log('Error updating task', err.response.data);
   }
 }
