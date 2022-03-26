@@ -22,7 +22,7 @@ async function loadTasks() {
     taskList.removeChild(taskList.firstChild);
   }
 
-  for(let item of tasks) {
+  for (let item of tasks) {
     let element = getTaskHtml(item);
     taskList.appendChild(element);
   }
@@ -40,7 +40,7 @@ function getTaskHtml(task) {
   let span = document.createElement('span');
   span.innerHTML = task.descricao;
   let spanDate = document.createElement('span');
-  spanDate.innerHTML =  new Date(task.prazo).toLocaleDateString('pt-BR');
+  spanDate.innerHTML = new Date(task.prazo).toLocaleDateString('pt-BR');
   let checkbox = document.createElement('input');
   checkbox.type = "checkbox";
   let deleteButton = createDeleteButton();
@@ -68,11 +68,11 @@ function createDeleteButton() {
   let button = document.createElement('button');
   let icon = document.createElement('i');
 
-  icon.classList.add('fa','fa-trash');
+  icon.classList.add('fa', 'fa-trash');
   button.classList.add("btnDel");
   button.appendChild(icon);
   appendDeleteEvent(button);
-  
+
   return button;
 }
 
@@ -80,11 +80,11 @@ function createEditButton() {
   let button = document.createElement('button');
   let icon = document.createElement('i');
 
-  icon.classList.add('fa','fa-edit');
+  icon.classList.add('fa', 'fa-edit');
   button.classList.add("btnEdit");
   button.appendChild(icon);
   appendEditEvent(button);
-  
+
   return button;
 }
 
@@ -93,29 +93,34 @@ function createEditButton() {
 function appendAddEvent(component) {
   component.addEventListener('click', async (event) => {
     event.preventDefault();
-    
+
     if (!descriptionInput.value) {
       alert('Preencha uma descrição.')
       return;
     }
-  
-    if(!dateInput.value) {
+
+    if (!dateInput.value) {
       alert('Preencha uma data de prazo.')
       return;
     }
 
-    let isDone = radioButtons[1].checked; 
+    let isDone = radioButtons[1].checked;
 
-    if(addButton.classList.contains('edit')) {
+    if (addButton.classList.contains('edit')) {
       addButton.classList.remove('edit');
       addButton.innerHTML = 'Adicionar Tarefa';
-      await updateTask(addButton.id,descriptionInput.value,dateInput.value,isDone);
+      const updateTaskResponse = await updateTask(addButton.id, descriptionInput.value, dateInput.value, isDone);
+      if (updateTaskResponse == 'Falha ao atualizar tarefa. Data inválida!') {
+        alert('Preencha uma data válida.')
+      }
       addButton.id = null;
     } else {
-      await createTask(descriptionInput.value,dateInput.value,isDone);
-
+      const createTaskResponse = await createTask(descriptionInput.value, dateInput.value, isDone);
+      if (createTaskResponse == 'Falha ao registrar tarefa. Data inválida!') {
+        alert('Preencha uma data válida.')
+      }
     }
-    
+
     await loadTasks();
   })
 }
@@ -131,9 +136,9 @@ function appendDeleteEvent(component) {
 function appendCheckBoxEvent(component) {
   component.addEventListener('click', async (e) => {
     let task = e.target.parentElement.task;
-    await updateTask(task.id,task.descricao,task.prazo,e.target.checked);
+    await updateTask(task.id, task.descricao, task.prazo, e.target.checked);
     await loadTasks();
-  });  
+  });
 }
 
 function appendEditEvent(component) {
@@ -144,21 +149,21 @@ function appendEditEvent(component) {
     radioButtons[task.completa ? 1 : 0].checked = true;
 
     addButton.id = task.id;
-    addButton.innerHTML = 'Salvar Alterações (' + task.id +')';
+    addButton.innerHTML = 'Salvar Alterações (' + task.id + ')';
     addButton.classList.add('edit');
 
     await loadTasks();
-  });  
+  });
 }
 
 function appendReadEvent(component) {
   component.addEventListener('click', async (e) => {
-    
+
     const inputSearch = document.querySelector('#idSearch');
     const readSpan = document.querySelector('#readDescription');
     const readDate = document.querySelector('#readDate');
     const readChecked = document.querySelector('#readChecked');
-    
+
     readSpan.innerHTML = '';
     readDate.innerHTML = '';
     readChecked.innerHTML = '';
@@ -168,17 +173,17 @@ function appendReadEvent(component) {
       return;
     }
 
-    const task = await readTask(inputSearch.value);
-    if (!task) {
+    const taskResponse = await readTask(inputSearch.value);
+    if (taskResponse == 'Falha ao encontrar tarefa.') {
       readSpan.innerHTML = 'Tarefa não encontrada';
     } else {
-      readSpan.innerHTML = task.descricao;
-      readDate.innerHTML = new Date(task.prazo).toDateString();
-      readChecked.innerHTML = task.completa ? 'Completa' : 'Pendente';
+      readSpan.innerHTML = taskResponse.descricao;
+      readDate.innerHTML = new Date(taskResponse.prazo).toDateString();
+      readChecked.innerHTML = taskResponse.completa ? 'Completa' : 'Pendente';
     }
-    
 
-  });  
+
+  });
 }
 
 
@@ -198,7 +203,7 @@ function formatDate(date) {
 /////////////////////// Request functions //////////////////////////
 
 
-async function createTask(descricao,prazo,completa) {
+async function createTask(descricao, prazo, completa) {
   try {
     const newTask = await api.post('/tarefas', {
       descricao,
@@ -206,13 +211,13 @@ async function createTask(descricao,prazo,completa) {
       completa,
     });
   } catch (err) {
-    console.log('Error creating task', err.response.data);
+    return err.response.data
   }
 }
 
 async function readTask(id) {
   let url = '/tarefas';
-  if(id) {
+  if (id) {
     url += `/${id}`;
   }
 
@@ -220,20 +225,19 @@ async function readTask(id) {
     const tasks = await api.get(url);
     return tasks.data;
   } catch (err) {
-    console.log('Error reading tasks', err.response.data);
-    return null;
+    return err.response.data;
   }
 }
 
-async function updateTask(id,descricao,prazo,completa) {
+async function updateTask(id, descricao, prazo, completa) {
   try {
-    const newTask = await api.put(`/tarefas/${id}`,{
+    const newTask = await api.put(`/tarefas/${id}`, {
       descricao,
       prazo,
       completa,
     });
   } catch (err) {
-    console.log('Error updating task', err.response.data);
+    return err.response.data
   }
 }
 
@@ -241,6 +245,6 @@ async function deleteTask(id) {
   try {
     await api.delete(`/tarefas/${id}`);
   } catch (err) {
-    console.log('Error updating task', err.response.data);
+    return err.response.data
   }
 }

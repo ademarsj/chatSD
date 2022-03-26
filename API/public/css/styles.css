@@ -95,13 +95,24 @@ li {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  margin: 0 5px;
-  width: 50px;
-  height: 30px;
+  margin: 3px 7px;
+  width: 30px;
+  height: 28px;
 }
 
 .searchContainer {
   border: 2px solid black;
   width: 75%;
   padding: 20px;
+}
+
+.fa fa-trash{
+  padding: 20px;
+}
+
+.fa-trash:before,
+.fa-edit:before {
+  padding: 4px 7px;
+  margin-left: -6px;
+  margin-top: 15px;
 }
