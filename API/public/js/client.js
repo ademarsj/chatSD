@@ -109,7 +109,8 @@ function appendAddEvent(component) {
     if(addButton.classList.contains('edit')) {
       addButton.classList.remove('edit');
       addButton.innerHTML = 'Adicionar Tarefa';
-      await updateTask(descriptionInput.value,dateInput.value,isDone);
+      await updateTask(addButton.id,descriptionInput.value,dateInput.value,isDone);
+      addButton.id = null;
     } else {
       await createTask(descriptionInput.value,dateInput.value,isDone);
 
@@ -143,6 +144,7 @@ function appendEditEvent(component) {
     descriptionInput.value = task.descricao;
     radioButtons[task.completa ? 1 : 0].checked = true;
 
+    addButton.id = task.id;
     addButton.innerHTML = 'Salvar Alterações (' + task.id +')';
     addButton.classList.add('edit');
 
@@ -205,7 +207,7 @@ async function createTask(descricao,prazo,completa) {
       completa,
     });
   } catch (err) {
-    console.log('Error creating task', error.response.data);
+    console.log('Error creating task', err.response.data);
   }
 }
 
